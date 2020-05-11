@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailChamp", "MailChamp\MailChamp.csproj", "{FA6738BD-233B-4D5E-A3AA-95500CBE35DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailChamp", "MailChamp\MailChamp.csproj", "{49E76DEC-1F91-44FB-88D9-B9B2D425BBB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailHelper", "EmailHelper\EmailHelper.csproj", "{D7A539DF-4C43-40A7-A3BF-2BB89EA8B4E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FA6738BD-233B-4D5E-A3AA-95500CBE35DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA6738BD-233B-4D5E-A3AA-95500CBE35DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA6738BD-233B-4D5E-A3AA-95500CBE35DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA6738BD-233B-4D5E-A3AA-95500CBE35DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49E76DEC-1F91-44FB-88D9-B9B2D425BBB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49E76DEC-1F91-44FB-88D9-B9B2D425BBB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49E76DEC-1F91-44FB-88D9-B9B2D425BBB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49E76DEC-1F91-44FB-88D9-B9B2D425BBB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7A539DF-4C43-40A7-A3BF-2BB89EA8B4E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7A539DF-4C43-40A7-A3BF-2BB89EA8B4E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7A539DF-4C43-40A7-A3BF-2BB89EA8B4E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7A539DF-4C43-40A7-A3BF-2BB89EA8B4E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
