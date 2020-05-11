@@ -3,3 +3,8 @@
 ################################################################################
 
 /.vs/MailChamp/v16
+/packages/Microsoft.Exchange.WebServices.2.2
+/EmailHelper/bin/Debug
+/EmailHelper/obj/Debug
+/MailChamp/bin/Debug
+/MailChamp/obj/Debug
