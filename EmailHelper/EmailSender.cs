@@ -46,14 +46,15 @@ namespace EmailHelper
             catch (SmtpException exception)
             {
                 string msg = $"Mail could not be sent (SmtpException):{exception.Message}";
-               
+                //Log error message
                 throw;
             }
 
             catch (AutodiscoverRemoteException exception)
             {
                 string msg = $"Mail cannot be sent(AutodiscoverRemoteException): {exception.Message} ";
-                
+                //Log error message
+
                 throw;
             } 
         }

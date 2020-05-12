@@ -1,11 +1,8 @@
 ﻿using EmailHelper.Models;
 using EmailHelper.Utilities;
-using Microsoft.Exchange.WebServices.Autodiscover;
 using Microsoft.Exchange.WebServices.Data;
 using System;
-using System.Configuration;
-using System.Net.Mail;
- 
+using System.Collections.Generic;
 
 namespace EmailHelper
 {
@@ -23,20 +20,19 @@ namespace EmailHelper
 
             } while (!Utils.IsValidEmail(emailId)); //Keep asking for a valid email ID if invalid
 
-
             do
             {
-                Console.WriteLine("Please enter your Office 365 Password\n");
+                Console.WriteLine("Please enter your Office 365 Password");
 
                 password = ReadPassword();
 
             } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
 
-            ProcessOptions(emailId, password);      
+            ProcessOptions(emailId, password);
 
-            Console.WriteLine("Please press c to start from main menu. Any other key to quit");
+            Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
 
-            if(Console.ReadLine() == "c")
+            if (Console.ReadKey(true).Key == ConsoleKey.C)
             {
                 Main(args);
             }
@@ -56,7 +52,7 @@ namespace EmailHelper
 
             if (!option)
             {
-                Console.WriteLine("Invalid Option. Please try again!");
+                Console.WriteLine("Invalid Option. Please try again! Press Ctrl+C to Quit");
                 ProcessOptions(emailId, password);
             }
 
@@ -67,16 +63,21 @@ namespace EmailHelper
                     break;
 
                 case 2:
-                    //ToDO
+                    var emails = EmailReader.ReadEmails(new Email { EmailId = emailId, Password = password });
+                    ProcessEmails(emails);
                     break;
 
                 default:
                     ProcessOptions(emailId, password);
                     break;
             }
-
         }
 
+        /// <summary>
+        /// Composes Email by accepting inputs from user for Subject, Body and Recepients
+        /// </summary>
+        /// <param name="emailId">User's Email ID</param>
+        /// <param name="password">User's Password</param>
         private static void ComposeEmail(string emailId, string password)
         {
             var email = new Email
@@ -94,7 +95,7 @@ namespace EmailHelper
             }
 
             Console.WriteLine("Enter the subject");
-            email.Subject = Console.ReadLine() ?? "" ;
+            email.Subject = Console.ReadLine() ?? "";
 
             Console.WriteLine("Please enter the message you want to send. Can include HTML tags also");
 
@@ -112,7 +113,13 @@ namespace EmailHelper
             if (string.IsNullOrEmpty(addresses.Trim()))
                 GetAddresses();
 
-            if (!addresses.Contains(",")) return addresses;
+            if (!addresses.Contains(","))
+            {
+                if (!Utils.IsValidEmail(addresses))
+                    return "";
+
+                return addresses;
+            }
 
             var emails = addresses.Split(',');
             var validEmails = "";
@@ -122,18 +129,32 @@ namespace EmailHelper
                 if (Utils.IsValidEmail(emailAddress.Trim()))
                 {
                     validEmails += emailAddress + ";";
-                }                    
+                }
                 else
                     Console.WriteLine($"Invalid: {emailAddress}. Ignored from the recepients list");
             }
 
             return validEmails;
-        } 
-       
+        }
+
+
+        private static void ProcessEmails(List<EmailMessage> emails)
+        {
+            foreach (var emailMsg in emails)
+            {
+                Console.WriteLine($"----------------------------------------Message ----------------------------------------------");
+                Console.WriteLine($"On: {emailMsg.DateTimeReceived:dd/MM/yyyy HH:mm t}");
+                Console.WriteLine($"From: {emailMsg.From.Address}");
+                Console.WriteLine($"Subject: {emailMsg.Subject}");
+                Console.WriteLine($"Message: {emailMsg.TextBody.Text}");
+                Console.WriteLine($"----------------------------------------End of Message ----------------------------------------------\n\n");
+            }
+        }
 
         private static string ReadPassword()
         {
             string pass = "";
+
             do
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
