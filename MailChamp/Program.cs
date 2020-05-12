@@ -4,7 +4,6 @@ using Microsoft.Exchange.WebServices.Data;
 using System;
 using System.Collections.Generic;
 
-
 namespace EmailHelper
 {
     class Program
@@ -31,9 +30,9 @@ namespace EmailHelper
 
             ProcessOptions(emailId, password);
 
-            Console.WriteLine("Please press c to start from main menu. Any other key to quit");
+            Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
 
-            if (Console.ReadLine() == "c")
+            if (Console.ReadKey(true).Key == ConsoleKey.C)
             {
                 Main(args);
             }
@@ -72,8 +71,13 @@ namespace EmailHelper
                     ProcessOptions(emailId, password);
                     break;
             }
-        }  
+        }
 
+        /// <summary>
+        /// Composes Email by accepting inputs from user for Subject, Body and Recepients
+        /// </summary>
+        /// <param name="emailId">User's Email ID</param>
+        /// <param name="password">User's Password</param>
         private static void ComposeEmail(string emailId, string password)
         {
             var email = new Email
@@ -109,7 +113,13 @@ namespace EmailHelper
             if (string.IsNullOrEmpty(addresses.Trim()))
                 GetAddresses();
 
-            if (!addresses.Contains(",")) return addresses;
+            if (!addresses.Contains(","))
+            {
+                if (!Utils.IsValidEmail(addresses))
+                    return "";
+
+                return addresses;
+            }
 
             var emails = addresses.Split(',');
             var validEmails = "";
@@ -144,6 +154,7 @@ namespace EmailHelper
         private static string ReadPassword()
         {
             string pass = "";
+
             do
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
