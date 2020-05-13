@@ -7,14 +7,17 @@ using System.Net;
 
 namespace EmailHelper
 {
+    /// <summary>
+    /// Email Reader class to Connect to EWS
+    /// </summary>
     public class EmailReader
     {
         /// <summary>
-        /// Read emails from the EWS
+        /// Read emails from the EWS account
         /// </summary>
         /// <param name="email">email</param>
         /// <returns>All Emails from Inbox as a List of Messages</returns>
-        /// <exception cref="ArgumentNullException"></exception>        
+        /// <exception cref="ArgumentNullException"></exception>
         public static List<EmailMessage> ReadEmails(Email email)
         {
             if (email == null || string.IsNullOrEmpty(email.EmailId) || string.IsNullOrEmpty(email.Password))
@@ -53,7 +56,7 @@ namespace EmailHelper
                     //Set the offset for next page results
                     view.Offset += foundItems.Items.Count;
                 }
-                while (foundItems.MoreAvailable == true); //If more items are there, coninue the loop.
+                while (foundItems.MoreAvailable == true); //If more items are there, continue the loop.
 
                 return list;
             }
