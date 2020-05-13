@@ -13,7 +13,7 @@ namespace EmailHelper.Models
         public string Password { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
-        public string ToRecipients { get; set; }
+        public List<EmailAddress> ToRecipients { get; set; }
         public string ExchangeUrl { get; set; }
 
     }

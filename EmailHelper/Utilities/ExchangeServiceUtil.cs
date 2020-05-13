@@ -9,10 +9,9 @@ namespace EmailHelper.Utilities
 {
     public class ExchangeServiceUtil
     {
-
         public static ExchangeService GetExchangeService(string email, string password)
         {
-            ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2007_SP1)
+            ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2013_SP1)
             {
                 Credentials = new WebCredentials(email, password)
             };
