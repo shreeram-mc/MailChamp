@@ -15,6 +15,8 @@ namespace EmailHelper
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to MailChamp! You can send or recieve Email using this program.\n");
+
+            //We have added a hot fix!. This must be adopted across all feauture branches.
              
             try
             {
