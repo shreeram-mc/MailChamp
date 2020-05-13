@@ -10,3 +10,6 @@
 /MailChamp/obj/Debug
 /.vs/MailChamp/DesignTimeBuild
 /MailChamp/obj
+/MailChampWeb/bin
+/MailChampWeb/obj/Debug
+/packages
