@@ -11,7 +11,7 @@ namespace EmailHelper
     {
         /// <summary>
         /// Entry to the Program starts at Main
-        /// </summary>         
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to MailChamp! You can send or recieve Email using this program.\n");
@@ -36,7 +36,7 @@ namespace EmailHelper
 
                 } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
 
-                ProcessOptions(emailId, password);
+                ProcessUserSelectedOption(emailId, password);
 
                 Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
 
@@ -66,7 +66,7 @@ namespace EmailHelper
         /// </summary>
         /// <param name="emailId">Email Id</param>
         /// <param name="password">Password</param>
-        private static void ProcessOptions(string emailId, string password)
+        private static void ProcessUserSelectedOption(string emailId, string password)
         {
             Console.WriteLine("\n1) Enter 1 to Compose Email\n2) Enter 2 to Read Top 100 Emails");
 
@@ -75,33 +75,35 @@ namespace EmailHelper
             if (!option)
             {
                 Console.WriteLine("Invalid Option! Please try again! Press Ctrl+C to Quit");
-                ProcessOptions(emailId, password);
+                ProcessUserSelectedOption(emailId, password); //Recurrsive approach to start this method again
             }
 
             switch (val)
             {
                 case 1:
-                    ComposeEmailAsync(emailId, password);
+                    ComposeEmail(emailId, password);
                     break;
 
                 case 2:
                     var emails = EmailReader.ReadEmails(new Email { EmailId = emailId, Password = password });
-                    ProcessEmails(emails);
+                    DisplayReceivedEmails(emails);
                     break;
 
                 default:
                     Console.WriteLine("Invalid Option! Please try again! Press Ctrl+C to Quit");
-                    ProcessOptions(emailId, password);
+                    ProcessUserSelectedOption(emailId, password);
                     break;
             }
         }
+
+        #region Email Sender Methods
 
         /// <summary>
         /// Composes Email by accepting inputs from user for Subject, Body and Recepients
         /// </summary>
         /// <param name="emailId">User's Email ID</param>
         /// <param name="password">User's Password</param>
-        private static void ComposeEmailAsync(string emailId, string password)
+        private static void ComposeEmail(string emailId, string password)
         {
             var email = new Email
             {
@@ -170,11 +172,14 @@ namespace EmailHelper
             return validEmails;
         }
 
+        #endregion
+
+        #region Read and Display Methods
         /// <summary>
         /// Process the Responses
         /// </summary>
         /// <param name="emails">All Email Messages</param>
-        private static void ProcessEmails(List<EmailMessage> emails)
+        private static void DisplayReceivedEmails(List<EmailMessage> emails)
         {
             var i = 1;
             foreach (var emailMsg in emails)
@@ -184,7 +189,7 @@ namespace EmailHelper
                 Console.WriteLine($"From: {emailMsg.From.Address}");
                 Console.WriteLine($"Subject: {emailMsg.Subject}");
                 Console.WriteLine($"Message: {emailMsg.TextBody.Text}");
-                Console.WriteLine($"----------------------------------------End of Message ----------------------------------------------\n\n");
+                Console.WriteLine($"---------------------------------------- End of Message ----------------------------------------------\n\n");
             }
         }
 
@@ -222,5 +227,7 @@ namespace EmailHelper
 
             return pass;
         }
+
+        #endregion
     }
 }
