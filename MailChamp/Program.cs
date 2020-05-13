@@ -3,38 +3,60 @@ using EmailHelper.Utilities;
 using Microsoft.Exchange.WebServices.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EmailHelper
 {
     class Program
     {
+        /// <summary>
+        /// Entry to the Program starts at Main
+        /// </summary>
         static void Main(string[] args)
         {
-            string emailId, password;
-
-            do
+            Console.WriteLine("Welcome to MailChamp! You can send or recieve Email using this program.\n");
+             
+            try
             {
-                Console.WriteLine("Please enter your valid Office 365 Email ID");
+                string emailId, password;
 
-                emailId = Console.ReadLine();
+                do
+                {
+                    Console.WriteLine("Please enter your valid Office 365 Email ID");
 
-            } while (!Utils.IsValidEmail(emailId)); //Keep asking for a valid email ID if invalid
+                    emailId = Console.ReadLine();
 
-            do
+                } while (!Utils.IsValidEmail(emailId)); //Keep asking for a valid email ID if invalid is entered by user
+
+                do
+                {
+                    Console.WriteLine("Please enter your Office 365 Password");
+
+                    password = ReadPassword();
+
+                } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
+
+                ProcessUserSelectedOption(emailId, password);
+
+                Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
+
+                if (Console.ReadKey(true).Key == ConsoleKey.C)
+                {
+                    Console.Clear();
+                    Main(args);
+                }
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("Please enter your Office 365 Password");
+                Console.WriteLine(ex.Message);
 
-                password = ReadPassword();
+                Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
 
-            } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
-
-            ProcessOptions(emailId, password);
-
-            Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
-
-            if (Console.ReadKey(true).Key == ConsoleKey.C)
-            {
-                Main(args);
+                if (Console.ReadKey(true).Key == ConsoleKey.C)
+                {
+                    Console.Clear();
+                    Main(args);
+                }
             }
         }
 
@@ -42,9 +64,9 @@ namespace EmailHelper
         /// <summary>
         /// Ask the user with options to Send or Read Emails
         /// </summary>
-        /// <param name="emailId"></param>
-        /// <param name="password"></param>
-        private static void ProcessOptions(string emailId, string password)
+        /// <param name="emailId">Email Id</param>
+        /// <param name="password">Password</param>
+        private static void ProcessUserSelectedOption(string emailId, string password)
         {
             Console.WriteLine("\n1) Enter 1 to Compose Email\n2) Enter 2 to Read Top 100 Emails");
 
@@ -52,8 +74,8 @@ namespace EmailHelper
 
             if (!option)
             {
-                Console.WriteLine("Invalid Option. Please try again! Press Ctrl+C to Quit");
-                ProcessOptions(emailId, password);
+                Console.WriteLine("Invalid Option! Please try again! Press Ctrl+C to Quit");
+                ProcessUserSelectedOption(emailId, password); //Recurrsive approach to start this method again
             }
 
             switch (val)
@@ -64,14 +86,17 @@ namespace EmailHelper
 
                 case 2:
                     var emails = EmailReader.ReadEmails(new Email { EmailId = emailId, Password = password });
-                    ProcessEmails(emails);
+                    DisplayReceivedEmails(emails);
                     break;
 
                 default:
-                    ProcessOptions(emailId, password);
+                    Console.WriteLine("Invalid Option! Please try again! Press Ctrl+C to Quit");
+                    ProcessUserSelectedOption(emailId, password);
                     break;
             }
         }
+
+        #region Email Sender Methods
 
         /// <summary>
         /// Composes Email by accepting inputs from user for Subject, Body and Recepients
@@ -88,23 +113,30 @@ namespace EmailHelper
 
             email.ToRecipients = GetAddresses();
 
-            if (string.IsNullOrEmpty(email.ToRecipients))
+            if (email.ToRecipients == null || !email.ToRecipients.Any())
             {
                 Console.WriteLine("No valid recepients were found!");
                 return;
             }
 
             Console.WriteLine("Enter the subject");
+
             email.Subject = Console.ReadLine() ?? "";
 
-            Console.WriteLine("Please enter the message you want to send. Can include HTML tags also");
+            Console.WriteLine("Please enter the message you want to send. You can include HTML tags also");
 
             email.Body = Console.ReadLine() ?? "";
 
             EmailSender.SendEmail(email);
+
+            Console.WriteLine("Email Sent successfully");
         }
 
-        private static string GetAddresses()
+        /// <summary>
+        /// Accept and Validate each Email ID entered by user. Invalid's are ignored
+        /// </summary>
+        /// <returns>List of valid email ids </returns>
+        private static List<EmailAddress> GetAddresses()
         {
             Console.WriteLine("Enter recepients emails address(s) as comma(,) seperated");
 
@@ -113,22 +145,25 @@ namespace EmailHelper
             if (string.IsNullOrEmpty(addresses.Trim()))
                 GetAddresses();
 
+            var validEmails = new List<EmailAddress>();
+
             if (!addresses.Contains(","))
             {
                 if (!Utils.IsValidEmail(addresses))
-                    return "";
+                    return null;
 
-                return addresses;
+                validEmails.Add(new EmailAddress(addresses));
+
+                return validEmails;
             }
 
             var emails = addresses.Split(',');
-            var validEmails = "";
 
             foreach (var emailAddress in emails)
             {
                 if (Utils.IsValidEmail(emailAddress.Trim()))
                 {
-                    validEmails += emailAddress + ";";
+                    validEmails.Add(new EmailAddress(emailAddress));
                 }
                 else
                     Console.WriteLine($"Invalid: {emailAddress}. Ignored from the recepients list");
@@ -137,20 +172,31 @@ namespace EmailHelper
             return validEmails;
         }
 
+        #endregion
 
-        private static void ProcessEmails(List<EmailMessage> emails)
+        #region Read and Display Methods
+        /// <summary>
+        /// Process the Responses
+        /// </summary>
+        /// <param name="emails">All Email Messages</param>
+        private static void DisplayReceivedEmails(List<EmailMessage> emails)
         {
+            var i = 1;
             foreach (var emailMsg in emails)
             {
-                Console.WriteLine($"----------------------------------------Message ----------------------------------------------");
-                Console.WriteLine($"On: {emailMsg.DateTimeReceived:dd/MM/yyyy HH:mm t}");
+                Console.WriteLine($"---------------------------------------- Message {i++} ----------------------------------------------");
+                Console.WriteLine($"On: {emailMsg.DateTimeReceived:dd/MMM/yyyy HH:mm}");
                 Console.WriteLine($"From: {emailMsg.From.Address}");
                 Console.WriteLine($"Subject: {emailMsg.Subject}");
                 Console.WriteLine($"Message: {emailMsg.TextBody.Text}");
-                Console.WriteLine($"----------------------------------------End of Message ----------------------------------------------\n\n");
+                Console.WriteLine($"---------------------------------------- End of Message ----------------------------------------------\n\n");
             }
         }
 
+        /// <summary>
+        /// Read's Password from Console and replaces it with a asterik (*) to mask the entry.
+        /// </summary>
+        /// <returns>User's Password</returns>
         private static string ReadPassword()
         {
             string pass = "";
@@ -181,5 +227,7 @@ namespace EmailHelper
 
             return pass;
         }
+
+        #endregion
     }
 }

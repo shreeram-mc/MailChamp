@@ -3,19 +3,28 @@ using EmailHelper.Utilities;
 using Microsoft.Exchange.WebServices.Autodiscover;
 using Microsoft.Exchange.WebServices.Data;
 using System;
-using System.Configuration;
 using System.Net.Mail;
 
 namespace EmailHelper
 {
     public class EmailSender
     {
-       public static  void SendEmail(Email email)
+        /// <summary>
+        /// Send an Email with the given Email Account details
+        /// </summary>
+        /// <param name="email">Email</param>
+        /// <exception cref="ArgumentNullException">Throw when Email Id or Password is Invalid</exception>
+        /// <exception cref="SmtpException"></exception>
+        /// <exception cref="AutodiscoverRemoteException"></exception>
+        public static void SendEmail(Email email)
         {
-            var service = ExchangeServiceUtil.GetExchangeService(email.EmailId, email.Password);
+            if (email == null || string.IsNullOrEmpty(email.EmailId) || string.IsNullOrEmpty(email.Password))
+                throw new ArgumentNullException();
 
             try
-            {                
+            {
+                var service = ExchangeServiceUtil.GetExchangeService(email.EmailId, email.Password);
+
                 var serviceUrl = email.ExchangeUrl ?? "https://outlook.office365.com/ews/exchange.asmx";
 
                 service.Url = new Uri(serviceUrl);
@@ -23,23 +32,10 @@ namespace EmailHelper
                 EmailMessage emailMessage = new EmailMessage(service)
                 {
                     Subject = email.Subject,
-                    Body = new MessageBody(BodyType.HTML, email.Body)
+                    Body = new MessageBody(BodyType.HTML, email.Body),
                 };
 
-                if (email.ToRecipients.Contains(";"))
-                {
-                    var emails = email.ToRecipients.Split(';');
-
-                    foreach(var item in emails)
-                    {
-                        if(!string.IsNullOrEmpty(item))
-                            emailMessage.ToRecipients.Add(item.Trim());
-                    }
-                }
-                else
-                {
-                    emailMessage.ToRecipients.Add(email.ToRecipients);
-                } 
+                emailMessage.ToRecipients.AddRange(email.ToRecipients);
 
                 emailMessage.Send();
             }
@@ -56,7 +52,7 @@ namespace EmailHelper
                 //Log error message
 
                 throw;
-            } 
+            }            
         }
     }
 }
