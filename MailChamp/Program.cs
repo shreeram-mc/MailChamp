@@ -32,7 +32,7 @@ namespace EmailHelper
                 {
                     Console.WriteLine("Please enter your Office 365 Password");
 
-                    password = ReadPassword();
+                    password = ReadPasswordFromUserInpu();
 
                 } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
 
@@ -197,7 +197,7 @@ namespace EmailHelper
         /// Read's Password from Console and replaces it with a asterik (*) to mask the entry.
         /// </summary>
         /// <returns>User's Password</returns>
-        private static string ReadPassword()
+        private static string ReadPasswordFromUserInpu()
         {
             string pass = "";
 
