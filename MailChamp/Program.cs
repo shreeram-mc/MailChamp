@@ -1,6 +1,7 @@
 ﻿using EmailHelper.Models;
 using EmailHelper.Utilities;
 using Microsoft.Exchange.WebServices.Data;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace EmailHelper
 {
     class Program
     {
+        private static AuthenticationResult authResult;
         /// <summary>
         /// Entry to the Program starts at Main
         /// </summary>
@@ -16,29 +18,26 @@ namespace EmailHelper
         {
             Console.WriteLine("Welcome to MailChamp! You can send or recieve Email using this program.\n");
 
-            //We have added a hot fix!. This must be adopted across all feauture branches.
-             
             try
             {
-                string emailId, password;
+                var auth = authResult;
 
-                do
+                if (auth == null)
                 {
-                    Console.WriteLine("Please enter your valid Office 365 Email ID");
+                    Console.WriteLine("Please login to your Microsoft account! \n");
+                    auth = ProcessLoginWithAuthToken(args).Result;
+                }
 
-                    emailId = Console.ReadLine();
-
-                } while (!Utils.IsValidEmail(emailId)); //Keep asking for a valid email ID if invalid is entered by user
-
-                do
+                if (auth != null)
                 {
-                    Console.WriteLine("Please enter your Office 365 Password");
-
-                    password = ReadPassword();
-
-                } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
-
-                ProcessUserSelectedOption(emailId, password);
+                    var token = auth.AccessToken;
+                    PerformUserSelectedOperation(null, null, token);
+                }
+                else
+                {
+                    Console.WriteLine("We coudld not process your request! Falling back to manual authentication. \n");
+                    ProcessLoginWithManualEntry();
+                }
 
                 Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
 
@@ -47,12 +46,13 @@ namespace EmailHelper
                     Console.Clear();
                     Main(args);
                 }
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
 
-                Console.WriteLine("Please press c to start from main menu. Any other key to quit\n");
+                Console.WriteLine("Please press C to start from main menu. Any other key to quit\n");
 
                 if (Console.ReadKey(true).Key == ConsoleKey.C)
                 {
@@ -62,13 +62,39 @@ namespace EmailHelper
             }
         }
 
+        /// <summary>
+        /// Fallback mechanism when Oauth Fails to get the token
+        /// Ask the User for Email and password
+        /// </summary>
+        private static void ProcessLoginWithManualEntry()
+        {
+            string emailId, password;
+
+            do
+            {
+                Console.WriteLine("Please enter your valid Office 365 Email ID");
+
+                emailId = Console.ReadLine();
+
+            } while (!Utils.IsValidEmail(emailId)); //Keep asking for a valid email ID if invalid is entered by user
+
+            do
+            {
+                Console.WriteLine("Please enter your Office 365 Password");
+
+                password = ReadPassword();
+
+            } while (string.IsNullOrEmpty(password)); //Keep asking for a password until entered
+
+            PerformUserSelectedOperation(emailId, password);
+        }
 
         /// <summary>
         /// Ask the user with options to Send or Read Emails
         /// </summary>
         /// <param name="emailId">Email Id</param>
         /// <param name="password">Password</param>
-        private static void ProcessUserSelectedOption(string emailId, string password)
+        private static void PerformUserSelectedOperation(string emailId, string password, string token = "")
         {
             Console.WriteLine("\n1) Enter 1 to Compose Email\n2) Enter 2 to Read Top 100 Emails");
 
@@ -76,24 +102,25 @@ namespace EmailHelper
 
             if (!option)
             {
-                Console.WriteLine("Invalid Option! Please try again! Press Ctrl+C to Quit");
-                ProcessUserSelectedOption(emailId, password); //Recurrsive approach to start this method again
+                Console.WriteLine("Invalid Option! Please try again!");
+
+                PerformUserSelectedOperation(emailId, password, token); //Recurrsive approach to start this method again
             }
 
             switch (val)
             {
                 case 1:
-                    ComposeEmail(emailId, password);
+                    ComposeEmail(emailId, password, token);
                     break;
 
                 case 2:
-                    var emails = EmailReader.ReadEmails(new Email { EmailId = emailId, Password = password });
+                    var emails = EmailReader.ReadEmails(new Email { EmailId = emailId, Password = password, Token = token });
                     DisplayReceivedEmails(emails);
                     break;
 
                 default:
-                    Console.WriteLine("Invalid Option! Please try again! Press Ctrl+C to Quit");
-                    ProcessUserSelectedOption(emailId, password);
+                    Console.WriteLine("Invalid Option! Please try again!");
+                    PerformUserSelectedOperation(emailId, password, token);
                     break;
             }
         }
@@ -105,12 +132,13 @@ namespace EmailHelper
         /// </summary>
         /// <param name="emailId">User's Email ID</param>
         /// <param name="password">User's Password</param>
-        private static void ComposeEmail(string emailId, string password)
+        private static void ComposeEmail(string emailId, string password, string token = "")
         {
             var email = new Email
             {
                 EmailId = emailId,
-                Password = password
+                Password = password,
+                Token = token
             };
 
             email.ToRecipients = GetAddresses();
@@ -125,7 +153,7 @@ namespace EmailHelper
 
             email.Subject = Console.ReadLine() ?? "";
 
-            Console.WriteLine("Please enter the message you want to send. You can include HTML tags also");
+            Console.WriteLine("Please enter the message you want to send. You can include HTML tags also!");
 
             email.Body = Console.ReadLine() ?? "";
 
@@ -231,5 +259,54 @@ namespace EmailHelper
         }
 
         #endregion
+
+
+        /// <summary>
+        /// Gets Token via Oauth
+        /// Morre Info: https://docs.microsoft.com/en-us/exchange/client-developer/exchange-web-services/how-to-authenticate-an-ews-application-by-using-oauth
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        static async System.Threading.Tasks.Task<AuthenticationResult> ProcessLoginWithAuthToken(string[] args)
+        {
+            // Configure the MSAL client to get tokens            
+            var client = Environment.GetEnvironmentVariable("AZ_ClientID");
+            var tenant = Environment.GetEnvironmentVariable("AZ_TenantId");
+
+            if (string.IsNullOrEmpty(client) || string.IsNullOrEmpty(tenant))
+            {
+                Console.WriteLine("Please set the environment variables for ClientID and Tenant ID.");                
+                return null;
+            }
+
+            var pcaOptions = new PublicClientApplicationOptions
+            {
+                ClientId = client,
+                TenantId = tenant
+            };
+
+            var pca = PublicClientApplicationBuilder
+                .CreateWithApplicationOptions(pcaOptions).Build();
+
+            var ewsScopes = new string[] { "https://outlook.office.com/EWS.AccessAsUser.All" };
+
+            try
+            {
+                // Make the interactive token request
+                authResult = await pca.AcquireTokenInteractive(ewsScopes).ExecuteAsync();
+
+                return authResult;
+            }
+            catch (MsalException ex)
+            {
+                Console.WriteLine($"Error acquiring access token: {ex}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}");
+            }
+
+            return null;
+        }
     }
 }
