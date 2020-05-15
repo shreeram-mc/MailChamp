@@ -18,12 +18,12 @@ namespace EmailHelper
         /// <exception cref="AutodiscoverRemoteException"></exception>
         public static void SendEmail(Email email)
         {
-            if (email == null || string.IsNullOrEmpty(email.EmailId) || string.IsNullOrEmpty(email.Password))
+            if (email == null)
                 throw new ArgumentNullException();
 
             try
             {
-                var service = ExchangeServiceUtil.GetExchangeService(email.EmailId, email.Password);
+                var service = ExchangeServiceUtil.GetExchangeService(email.EmailId, email.Password, email.Token);
 
                 var serviceUrl = email.ExchangeUrl ?? "https://outlook.office365.com/ews/exchange.asmx";
 

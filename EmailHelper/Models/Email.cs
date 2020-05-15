@@ -16,5 +16,9 @@ namespace EmailHelper.Models
         public List<EmailAddress> ToRecipients { get; set; }
         public string ExchangeUrl { get; set; }
 
+        /// <summary>
+        /// Either Token or Email/Pwd combination must be present
+        /// </summary>
+        public string Token { get; set; }
     }
 }

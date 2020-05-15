@@ -1,0 +1,57 @@
+﻿<Window x:Class="active_directory_wpf_msgraph_v2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:active_directory_wpf_msgraph_v2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="800" Width="1025">
+    <Grid>
+        <StackPanel Background="Azure">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="ComposeEmail" Content="Compose" HorizontalAlignment="Right" Padding="5" Click="ComposeEmail_Click" Margin="5" FontFamily="Segoe Ui"/>
+                <Button x:Name="GetInboxData" Content="Inbox" HorizontalAlignment="Right" Padding="5" Click="GetInboxData_Click" Margin="5" FontFamily="Segoe Ui"/>
+                <Button x:Name="SignOutButton" Content="Sign-Out" HorizontalAlignment="Right" Padding="5" Click="SignOutButton_Click" Margin="5" Visibility="Collapsed" FontFamily="Segoe Ui"/>
+            </StackPanel>
+
+            <Label Name="lblLoading" Content="Loading .... .......... ...... ....." Visibility="Hidden" />
+
+            <Grid Margin="20" Name="grdInbox" Visibility="Hidden">
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <DataGrid Name="dgMails" CanUserResizeColumns="False" CanUserResizeRows="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden" MaxHeight="800" IsReadOnly="True" AlternatingRowBackground="AliceBlue">
+
+                    </DataGrid>
+                </ScrollViewer>
+            </Grid>
+
+            <Grid Margin="20"  Name="grdCompose" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="41*"/>
+                    <ColumnDefinition Width="540*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Compose New Email" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="146,0,0,0"/>
+                <Label Content="To" HorizontalAlignment="Left" Margin="30,38,0,0" VerticalAlignment="Top" FontWeight="Bold" Grid.ColumnSpan="2"/>
+
+                <TextBox HorizontalAlignment="Left" Name="txtTo"   Height="23" Margin="67.579,41,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="350" Grid.Column="1" ToolTip="Comma Seperated Email Ids"/>
+
+                <Label Content="Subject" HorizontalAlignment="Left" Margin="30,79,0,0" VerticalAlignment="Top" FontWeight="Bold" Grid.ColumnSpan="2"/>
+                <TextBox HorizontalAlignment="Left" x:Name="txtSubject"  Height="23" Margin="67.579,82,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="350" Grid.Column="1"/>
+                <Label Content="Message" HorizontalAlignment="Left" Margin="30,124,0,0" VerticalAlignment="Top" FontWeight="Bold" Grid.ColumnSpan="2"/>
+                <TextBox HorizontalAlignment="Left" x:Name="txtContent"  Height="124" Margin="67.579,127,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="350" Grid.Column="1" ToolTip="Your message can include HTML tags also"/>
+                <Button Content="Send" HorizontalAlignment="Left" Margin="91.2,276,0,0.2" Width="75" Name="btnSend" Click="btnSend_Click" Grid.Column="1"/>
+                <Button Content="Reset" HorizontalAlignment="Left" Margin="191.579,276,0,0" VerticalAlignment="Top" Width="75" Name="btnReset" Click="btnReset_Click" Grid.Column="1"/>
+
+
+                <TextBlock HorizontalAlignment="Left" Name="txtbTo" Foreground="red" Margin="422.579,43,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" RenderTransformOrigin="1.207,3.224" Grid.Column="1"/>
+                <TextBlock HorizontalAlignment="Left" x:Name="txtbSubject" Foreground="red" Margin="422.579,84,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" RenderTransformOrigin="1.207,3.224" Grid.Column="1"/>
+                <TextBlock HorizontalAlignment="Left" x:Name="txtbContent" Foreground="red" Margin="422.579,137,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" RenderTransformOrigin="1.207,3.224" Grid.Column="1"/>
+                
+
+
+            </Grid>
+        </StackPanel>
+    </Grid>
+
+
+</Window>
