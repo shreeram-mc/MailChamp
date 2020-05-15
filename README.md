@@ -39,17 +39,16 @@ to cache the retrieved token and fetch a new token silently when the old token e
 
 This can be run only on Windows machine as this was built using .Net Framework 4.7. Machine must have this version of .Net installed.
 
-Prior to opening the solution, Make sure you have set the ClientId and TenantId in your Environment. 
-Get the ClientID from your Office 365 account (You must be the administrator for your org account). 
+> ***For running via Implicit login***  
++ Prior to opening the solution, Make sure you have set the ClientId and TenantId in your Environment. Get the ClientID from your Office 365 account Azure portal (You must be the administrator for your org account).  
++ If you are a developer, Get a developer account from - https://developer.microsoft.com/en-us/microsoft-365/dev-program. Register the app in the Azure portal using the same developer account (Use org admin account) to get the Client Id and Tenant ID.  
++ More Info: https://docs.microsoft.com/en-us/exchange/client-developer/exchange-web-services/get-started-with-ews-managed-api-client-applications  
++ *ENV Variables must be set as below*   
+AZ_ClientID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX (From Azure Portal)  
+AZ_TenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX (From Azure Portal or you can set it to "common")  
 
-If you are a developer, Get a developer account from - https://developer.microsoft.com/en-us/microsoft-365/dev-program .
-
-Register the app in the Azure portal using the same developer account (Use org admin account) to get the Client Id and Tenant ID.
-More Info: https://docs.microsoft.com/en-us/exchange/client-developer/exchange-web-services/get-started-with-ews-managed-api-client-applications 
-
-#### *ENV Variables to set*
-AZ_ClientID: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  
-AZ_TenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+> ***For Explicit Login***  
+WPF currently doesn't support this feature yet! You have to enter your EmailID and Password in the console after cancelling the Microsoft Login Popup.
 
 ```
 Open the MailChamp.sln solution file in Visual Studio 2019.
