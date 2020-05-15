@@ -18,11 +18,12 @@ This is a reusable library built using .Net Framework 4.7.
 
 This is a sample console application to demonstrate the capability of the Class Library. 
 
-This application has been designed to enable login to Microsoft account using Oauth and using implicit credentials. 
+
+This application has been designed to enable login to Microsoft account using Oauth and using explicit credentials. 
 The Program asks user to login to his Office 365 account (a popup window opens), User enters his credentials and 
 only token is passed back to our application from Microsoft.  
 Same Token is used to fetch Mails from User's Inbox or to Send Emails via EWS.  
-If the user decides to cancel the Office login window, application falls back to implicit credentials. 
+If the user decides to cancel the Office login window, application falls back to explicit credentials. 
 
 Application now asks the user to enter email and password in the console. Credentials are never stored on the server. They are only used for transacting with EWS and is automatically destroyed once the program ends.
 
