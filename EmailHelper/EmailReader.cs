@@ -20,10 +20,10 @@ namespace EmailHelper
         /// <exception cref="ArgumentNullException"></exception>
         public static List<EmailMessage> ReadEmails(Email email)
         {
-            if (email == null || string.IsNullOrEmpty(email.EmailId) || string.IsNullOrEmpty(email.Password))
+            if (email == null)
                 throw new ArgumentNullException();
 
-            var service = ExchangeServiceUtil.GetExchangeService(email.EmailId, email.Password);
+            ExchangeService service = ExchangeServiceUtil.GetExchangeService(email.EmailId, email.Password, email.Token);
 
             try
             {
